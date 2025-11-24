@@ -1,7 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Ratuna Cashier System',
+  title: 'Ratuna System',
+  icons: "/Logo_Ratuna.png",
   description: 'Sistem Manajemen Kasir Profesional',
 }
 

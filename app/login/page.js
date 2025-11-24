@@ -45,10 +45,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-8">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-black">
           <div className="text-center mb-8">
-            <div className="inline-block p-4 bg-black rounded-full mb-4">
-              <LogIn className="w-8 h-8 text-white" />
+            <div className="inline-block mb-4">
+              <img
+              src="/Logo_Ratuna.png"
+              alt="Ratuna Logo"
+              className="w-48 h-32 object-contain"
+              />
             </div>
-            <h1 className="text-3xl font-bold mb-2">Ratuna Cashier</h1>
+            <h1 className="text-3xl font-bold mb-2">Ratuna</h1>
             <p className="text-gray-600">Silakan login untuk melanjutkan</p>
           </div>
 
