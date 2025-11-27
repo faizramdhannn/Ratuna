@@ -38,8 +38,8 @@ export default function Navbar({ user }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div>
-            <h1 className="text-2xl font-bold">Ratuna Cashier</h1>
-            <p className="text-sm text-gray-400">Sistem Manajemen Kasir</p>
+            <h1 className="text-2xl font-bold">Ratuna</h1>
+            <p className="text-sm text-gray-400">Rahang Tuna Kasir</p>
           </div>
 
           <div className="flex items-center space-x-6">
