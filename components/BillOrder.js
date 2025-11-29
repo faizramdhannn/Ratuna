@@ -6,9 +6,9 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
+                    'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     
     const dayName = days[date.getDay()];
     const day = date.getDate();
@@ -21,81 +21,330 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
   };
 
   return (
-    <div ref={ref} className="bg-white p-8 max-w-md mx-auto font-mono text-sm">
+    <div ref={ref} className="bill-container">
       {/* Logo */}
-      <div className="flex justify-center mb-4">
+      <div className="bill-logo">
         <img 
           src="/Logo_Ratuna.png" 
           alt="Ratuna Logo" 
-          className="h-20 object-contain"
+          className="logo-img"
         />
       </div>
 
       {/* Store Info */}
-      <div className="text-center mb-4 border-b-2 border-dashed border-gray-400 pb-4">
-        <h1 className="font-bold text-lg mb-1">Ratuna</h1>
-        <p className="text-xs leading-relaxed">
-          Jl. Babakan Cichaeum No.73 RT 02 RW 21<br />
-          Cimenyan, Kb.Bandung<br />
-          No. Telp 088218639833
+      <div className="bill-header">
+        <h1 className="store-name">Ratuna</h1>
+        <p className="store-address">
+          Jl. Babakan Cichaeum No.73<br />
+          RT 02 RW 21 Cimenyan, Kb.Bandung<br />
+          Telp: 088218639833
         </p>
       </div>
 
+      {/* Divider */}
+      <div className="divider"></div>
+
       {/* Order Info */}
-      <div className="mb-4 pb-3 border-b-2 border-dashed border-gray-400">
-        <div className="flex justify-between mb-1">
-          <span>{formatDate(orderData.created_at)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Kasir: {orderData.cashier_name}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>No: {orderData.order_id}</span>
-        </div>
+      <div className="bill-info">
+        <table className="info-table">
+          <tbody>
+            <tr>
+              <td className="info-label">Tanggal:</td>
+              <td className="info-value">{formatDate(orderData.created_at)}</td>
+            </tr>
+            <tr>
+              <td className="info-label">Kasir:</td>
+              <td className="info-value">{orderData.cashier_name}</td>
+            </tr>
+            <tr>
+              <td className="info-label">No:</td>
+              <td className="info-value">{orderData.order_id}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
+      {/* Divider */}
+      <div className="divider"></div>
+
       {/* Items */}
-      <div className="mb-4 pb-3 border-b-2 border-dashed border-gray-400">
+      <div className="bill-items">
         {items.map((item, index) => (
-          <div key={index} className="mb-3">
-            <div className="flex justify-between font-bold">
-              <span>{item.item_name}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span>{item.quantity} x {parseInt(item.price).toLocaleString('id-ID')}</span>
-              <span>Rp {parseInt(item.subtotal).toLocaleString('id-ID')}</span>
-            </div>
+          <div key={index} className="item-row">
+            <div className="item-name">{item.item_name}</div>
+            <table className="item-table">
+              <tbody>
+                <tr>
+                  <td className="item-qty">{item.quantity} x Rp {parseInt(item.price).toLocaleString('id-ID')}</td>
+                  <td className="item-subtotal">Rp {parseInt(item.subtotal).toLocaleString('id-ID')}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         ))}
       </div>
 
+      {/* Divider */}
+      <div className="divider"></div>
+
       {/* Total */}
-      <div className="mb-4 pb-3 border-b-2 border-dashed border-gray-400">
-        <div className="flex justify-between items-center">
-          <span className="font-bold text-base">Total QTY: {items.reduce((sum, item) => sum + parseInt(item.quantity), 0)}</span>
-        </div>
-        <div className="flex justify-between items-center mt-2">
-          <span className="font-bold text-base">Sub Total</span>
-          <span className="font-bold">Rp {parseInt(orderData.total_amount).toLocaleString('id-ID')}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="font-bold text-lg">Total</span>
-          <span className="font-bold text-lg">Rp {parseInt(orderData.total_amount).toLocaleString('id-ID')}</span>
-        </div>
-        <div className="flex justify-between items-center mt-2">
-          <span>Bayar ({orderData.payment_method})</span>
-          <span>Rp {parseInt(orderData.payment_method === 'QRIS' ? orderData.total_amount : orderData.cash_paid).toLocaleString('id-ID')}</span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span>Kembali</span>
-          <span>Rp {parseInt(orderData.change || 0).toLocaleString('id-ID')}</span>
-        </div>
+      <div className="bill-total">
+        <table className="total-table">
+          <tbody>
+            <tr>
+              <td>Total QTY</td>
+              <td className="text-right">{items.reduce((sum, item) => sum + parseInt(item.quantity), 0)}</td>
+            </tr>
+            <tr>
+              <td>Sub Total</td>
+              <td className="text-right">Rp {parseInt(orderData.total_amount).toLocaleString('id-ID')}</td>
+            </tr>
+            <tr className="total-main-row">
+              <td>TOTAL</td>
+              <td className="text-right">Rp {parseInt(orderData.total_amount).toLocaleString('id-ID')}</td>
+            </tr>
+            <tr>
+              <td>Bayar ({orderData.payment_method})</td>
+              <td className="text-right">Rp {parseInt(orderData.payment_method === 'QRIS' ? orderData.total_amount : orderData.cash_paid).toLocaleString('id-ID')}</td>
+            </tr>
+            <tr>
+              <td>Kembali</td>
+              <td className="text-right">Rp {parseInt(orderData.change || 0).toLocaleString('id-ID')}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
+      {/* Divider */}
+      <div className="divider"></div>
+
       {/* Footer */}
-      <div className="text-center text-xs">
-        <p className="font-bold mb-2">Terimakasih Telah Berbelanja</p>
+      <div className="bill-footer">
+        <p>Terimakasih Telah Berbelanja</p>
       </div>
+
+      {/* CSS untuk Print */}
+      <style jsx>{`
+        /* Screen View */
+        .bill-container {
+          background: white;
+          padding: 16px;
+          max-width: 400px;
+          margin: 0 auto;
+          font-family: 'Courier New', monospace;
+          font-size: 12px;
+          line-height: 1.4;
+        }
+
+        .bill-logo {
+          text-align: center;
+          margin-bottom: 12px;
+        }
+
+        .logo-img {
+          height: 60px;
+          object-fit: contain;
+        }
+
+        .bill-header {
+          text-align: center;
+          margin-bottom: 12px;
+        }
+
+        .store-name {
+          font-size: 20px;
+          font-weight: bold;
+          margin: 0 0 8px 0;
+        }
+
+        .store-address {
+          font-size: 11px;
+          line-height: 1.5;
+          margin: 0;
+          color: #333;
+        }
+
+        .divider {
+          border-top: 1px dashed #000;
+          margin: 12px 0;
+        }
+
+        .bill-info {
+          margin-bottom: 12px;
+        }
+
+        .info-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .info-table td {
+          padding: 3px 0;
+          font-size: 11px;
+        }
+
+        .info-label {
+          width: 80px;
+          font-weight: 600;
+        }
+
+        .info-value {
+          text-align: left;
+        }
+
+        .bill-items {
+          margin-bottom: 12px;
+        }
+
+        .item-row {
+          margin-bottom: 10px;
+        }
+
+        .item-name {
+          font-weight: bold;
+          margin-bottom: 4px;
+          font-size: 12px;
+        }
+
+        .item-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .item-table td {
+          padding: 2px 0;
+          font-size: 11px;
+        }
+
+        .item-qty {
+          text-align: left;
+        }
+
+        .item-subtotal {
+          text-align: right;
+          font-weight: 600;
+        }
+
+        .bill-total {
+          margin-bottom: 12px;
+        }
+
+        .total-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .total-table td {
+          padding: 4px 0;
+          font-size: 11px;
+        }
+
+        .total-table .text-right {
+          text-align: right;
+          font-weight: 600;
+        }
+
+        .total-main-row td {
+          font-size: 14px;
+          font-weight: bold;
+          padding: 8px 0;
+        }
+
+        .bill-footer {
+          text-align: center;
+          font-size: 12px;
+          font-weight: bold;
+          margin-top: 12px;
+        }
+
+        .bill-footer p {
+          margin: 0;
+        }
+
+        /* Print Styles untuk Thermal Printer 58mm */
+        @media print {
+          .bill-container {
+            width: 58mm !important;
+            max-width: 58mm !important;
+            padding: 3mm !important;
+            margin: 0 !important;
+            font-size: 9pt !important;
+          }
+
+          .logo-img {
+            height: 35px !important;
+            max-width: 50mm !important;
+          }
+
+          .store-name {
+            font-size: 13pt !important;
+            margin-bottom: 2mm !important;
+          }
+
+          .store-address {
+            font-size: 8pt !important;
+            line-height: 1.3 !important;
+          }
+
+          .divider {
+            margin: 2mm 0 !important;
+            border-top-width: 1px !important;
+          }
+
+          .info-table td,
+          .item-table td,
+          .total-table td {
+            font-size: 8pt !important;
+            padding: 1mm 0 !important;
+          }
+
+          .info-label {
+            width: 20mm !important;
+          }
+
+          .item-name {
+            font-size: 9pt !important;
+            margin-bottom: 1mm !important;
+          }
+
+          .total-main-row td {
+            font-size: 11pt !important;
+            padding: 2mm 0 !important;
+          }
+
+          .bill-footer {
+            font-size: 9pt !important;
+            margin-top: 3mm !important;
+          }
+
+          /* Remove page margins */
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
+          body {
+            margin: 0;
+            padding: 0;
+          }
+
+          /* Hide everything except the bill */
+          body * {
+            visibility: hidden;
+          }
+
+          .bill-container,
+          .bill-container * {
+            visibility: visible;
+          }
+
+          .bill-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 });
