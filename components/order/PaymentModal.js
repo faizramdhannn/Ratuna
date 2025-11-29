@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function PaymentModal({ totalAmount, onClose, onConfirm, loading }) {
   const [paymentMethod, setPaymentMethod] = useState(null);
   const [cashAmount, setCashAmount] = useState('');
+  const [notes, setNotes] = useState('');
 
   const handlePaymentMethodSelect = (method) => {
     setPaymentMethod(method);
@@ -28,13 +29,14 @@ export default function PaymentModal({ totalAmount, onClose, onConfirm, loading 
     onConfirm({
       paymentMethod,
       cashPaid,
-      change
+      change,
+      notes: notes.trim()
     });
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
         <h3 className="text-2xl font-bold mb-6 text-center">Pilih Metode Pembayaran</h3>
         
         {/* Total Amount */}
@@ -129,6 +131,20 @@ export default function PaymentModal({ totalAmount, onClose, onConfirm, loading 
             )}
           </div>
         )}
+
+        {/* Notes Input */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">Notes (Opsional)</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-black focus:outline-none resize-none"
+            placeholder="Tambahkan catatan untuk order ini..."
+            rows="3"
+            maxLength="200"
+          />
+          <p className="text-xs text-gray-500 mt-1">{notes.length}/200 karakter</p>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-3">

@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Package, ClipboardList, Boxes, Users, List } from 'lucide-react';
+import { ShoppingCart, Package, ClipboardList, Boxes, Users, List, BarChart3 } from 'lucide-react';
 import OrderTab from '@/components/order/OrderTab';
 import OrderListTab from '@/components/order/OrderListTab';
 import MasterItemTab from '@/components/MasterItemTab';
 import ShoppingListTab from '@/components/ShoppingListTab';
 import StockTab from '@/components/StockTab';
 import UsersTab from '@/components/UsersTab';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('order');
+  const [activeTab, setActiveTab] = useState('analytics');
   const [currentUser, setCurrentUser] = useState(null);
   const [masterItems, setMasterItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -98,7 +99,7 @@ export default function Dashboard() {
   const canAccessTab = (tab) => {
     if (!currentUser) return false;
     if (currentUser.role === 'superadmin') return true;
-    if (currentUser.role === 'admin') return ['order', 'orderlist', 'master', 'shopping', 'stock'].includes(tab);
+    if (currentUser.role === 'admin') return ['analytics', 'order', 'orderlist', 'master', 'shopping', 'stock'].includes(tab);
     if (currentUser.role === 'worker') return ['order', 'orderlist'].includes(tab);
     return false;
   };
@@ -115,6 +116,17 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg overflow-x-auto">
+          {canAccessTab('analytics') && (
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                activeTab === 'analytics' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Dashboard</span>
+            </button>
+          )}
           {canAccessTab('order') && (
             <button
               onClick={() => setActiveTab('order')}
@@ -185,6 +197,10 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'analytics' && (
+          <AnalyticsDashboard onMessage={showMessage} />
+        )}
+
         {activeTab === 'order' && (
           <OrderTab
             masterItems={masterItems}

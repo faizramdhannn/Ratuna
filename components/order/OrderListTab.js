@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Eye, X, Calendar, User, CreditCard, Package } from 'lucide-react';
+import { Eye, X, Calendar, User, CreditCard, Package, FileText } from 'lucide-react';
 import SearchBar from '../common/SearchBar';
 
 export default function OrderListTab({ onMessage }) {
@@ -109,7 +109,7 @@ export default function OrderListTab({ onMessage }) {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                       <div className="flex items-center space-x-2 text-gray-600">
                         <Calendar className="w-4 h-4" />
                         <span>{formatDate(order.created_at)}</span>
@@ -128,7 +128,14 @@ export default function OrderListTab({ onMessage }) {
                       </div>
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between">
+                    {order.notes && (
+                      <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm flex items-start space-x-2">
+                        <FileText className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-blue-800">{order.notes}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs text-gray-500">Total Pembayaran</p>
                         <p className="text-xl font-bold">
@@ -193,6 +200,18 @@ export default function OrderListTab({ onMessage }) {
                   <p className="font-bold">{selectedOrder.total_items} item(s)</p>
                 </div>
               </div>
+              
+              {selectedOrder.notes && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600 mb-2 flex items-center space-x-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Notes</span>
+                  </p>
+                  <p className="text-sm bg-white p-3 rounded border border-gray-200">
+                    {selectedOrder.notes}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Items List */}

@@ -109,7 +109,8 @@ export default function OrderTab({ masterItems, stocks, categories, currentUser,
           customer_name: customerName.trim(),
           payment_method: paymentData.paymentMethod,
           cash_paid: paymentData.cashPaid,
-          change: paymentData.change
+          change: paymentData.change,
+          notes_order: paymentData.notes || ''
         };
 
         const res = await fetch('/api/orders', {
@@ -132,7 +133,8 @@ export default function OrderTab({ masterItems, stocks, categories, currentUser,
         total_amount: totalAmount,
         payment_method: paymentData.paymentMethod,
         cash_paid: paymentData.cashPaid,
-        change: paymentData.change
+        change: paymentData.change,
+        notes: paymentData.notes || ''
       };
 
       const billItems = cart.map(c => ({
@@ -159,10 +161,117 @@ export default function OrderTab({ masterItems, stocks, categories, currentUser,
   };
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById('bill-print-area');
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Print Bill</title>
+        <style>
+          @page { 
+            size: 58mm auto; 
+            margin: 0; 
+          }
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          body {
+            font-family: 'Courier New', monospace;
+            font-size: 9pt;
+            line-height: 1.3;
+            width: 58mm;
+            padding: 3mm;
+          }
+          .bill-logo {
+            text-align: center;
+            margin-bottom: 3mm;
+          }
+          .logo-img {
+            height: 35px;
+            max-width: 50mm;
+          }
+          .bill-header {
+            text-align: center;
+            margin-bottom: 3mm;
+          }
+          .store-name {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 2mm;
+          }
+          .store-address {
+            font-size: 8pt;
+            line-height: 1.3;
+          }
+          .divider {
+            border-top: 1px dashed #000;
+            margin: 2mm 0;
+          }
+          .info-table, .item-table, .total-table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .info-table td, .item-table td, .total-table td {
+            font-size: 8pt;
+            padding: 1mm 0;
+          }
+          .info-label {
+            width: 20mm;
+            font-weight: 600;
+          }
+          .item-name {
+            font-weight: bold;
+            font-size: 9pt;
+            margin-bottom: 1mm;
+          }
+          .item-subtotal {
+            text-align: right;
+            font-weight: 600;
+          }
+          .bill-notes {
+            font-size: 8pt;
+            padding: 2mm;
+            background: #f5f5f5;
+            margin: 2mm 0;
+          }
+          .total-main-row td {
+            font-size: 11pt;
+            font-weight: bold;
+            padding: 2mm 0;
+          }
+          .text-right {
+            text-align: right;
+            font-weight: 600;
+          }
+          .bill-footer {
+            text-align: center;
+            font-size: 9pt;
+            font-weight: bold;
+            margin-top: 3mm;
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent.innerHTML}
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
     setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
       onMessage('success', 'Bill berhasil dicetak!');
-    }, 1000);
+    }, 250);
   };
 
   return (
@@ -302,7 +411,7 @@ export default function OrderTab({ masterItems, stocks, categories, currentUser,
               </button>
             </div>
 
-            <div className="border-2 border-gray-200 rounded-lg mb-6 print-area">
+            <div className="border-2 border-gray-200 rounded-lg mb-6">
               <BillOrder 
                 ref={billRef}
                 orderData={billData.orderData}

@@ -33,6 +33,7 @@ export async function GET(request) {
           payment_method: orderItems[0].payment_method,
           cash_paid: orderItems[0].cash_paid,
           change: orderItems[0].change,
+          notes: orderItems[0].notes_order || '',
           items: orderItems.map(item => ({
             item_name: item.item_name,
             quantity: item.quantity_item,
@@ -55,6 +56,7 @@ export async function GET(request) {
           cashier_name: order.cashier_name,
           customer_name: order.customer_name || '-',
           payment_method: order.payment_method,
+          notes: order.notes_order || '',
           items: [],
           total_items: 0,
           total_amount: 0

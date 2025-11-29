@@ -26,7 +26,8 @@ export async function POST(request) {
       customer_name,
       payment_method,
       cash_paid,
-      change
+      change,
+      notes_order
     } = body;
 
     if (!item_name || !quantity_item || !total_amount || !cashier_name || !customer_name || !payment_method) {
@@ -58,7 +59,8 @@ export async function POST(request) {
       customer_name,
       payment_method,
       cash_paid || total_amount,
-      change || 0
+      change || 0,
+      notes_order || ''
     ];
 
     await appendSheetData('Order', orderData);
@@ -76,7 +78,8 @@ export async function POST(request) {
         customer_name,
         payment_method,
         cash_paid: cash_paid || total_amount,
-        change: change || 0
+        change: change || 0,
+        notes_order: notes_order || ''
       }
     });
 

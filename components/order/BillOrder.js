@@ -21,7 +21,7 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
   };
 
   return (
-    <div ref={ref} className="bill-container">
+    <div ref={ref} className="bill-container" id="bill-print-area">
       {/* Logo */}
       <div className="bill-logo">
         <img 
@@ -83,6 +83,16 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
           </div>
         ))}
       </div>
+
+      {/* Notes if exists */}
+      {orderData.notes && (
+        <>
+          <div className="divider"></div>
+          <div className="bill-notes">
+            <strong>Notes:</strong> {orderData.notes}
+          </div>
+        </>
+      )}
 
       {/* Divider */}
       <div className="divider"></div>
@@ -225,6 +235,14 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
           font-weight: 600;
         }
 
+        .bill-notes {
+          font-size: 11px;
+          padding: 8px;
+          background: #f5f5f5;
+          border-radius: 4px;
+          margin-bottom: 12px;
+        }
+
         .bill-total {
           margin-bottom: 12px;
         }
@@ -263,12 +281,29 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
 
         /* Print Styles untuk Thermal Printer 58mm */
         @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .bill-container {
             width: 58mm !important;
             max-width: 58mm !important;
             padding: 3mm !important;
             margin: 0 !important;
             font-size: 9pt !important;
+            position: relative !important;
           }
 
           .logo-img {
@@ -307,6 +342,11 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
             margin-bottom: 1mm !important;
           }
 
+          .bill-notes {
+            font-size: 8pt !important;
+            padding: 2mm !important;
+          }
+
           .total-main-row td {
             font-size: 11pt !important;
             padding: 2mm 0 !important;
@@ -315,33 +355,6 @@ const BillOrder = forwardRef(({ orderData, items }, ref) => {
           .bill-footer {
             font-size: 9pt !important;
             margin-top: 3mm !important;
-          }
-
-          /* Remove page margins */
-          @page {
-            size: 58mm auto;
-            margin: 0;
-          }
-
-          body {
-            margin: 0;
-            padding: 0;
-          }
-
-          /* Hide everything except the bill */
-          body * {
-            visibility: hidden;
-          }
-
-          .bill-container,
-          .bill-container * {
-            visibility: visible;
-          }
-
-          .bill-container {
-            position: absolute;
-            left: 0;
-            top: 0;
           }
         }
       `}</style>
