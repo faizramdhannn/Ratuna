@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Package, ClipboardList, Boxes, Users, Tag } from 'lucide-react';
-import OrderTab from '@/components/OrderTab';
+import { ShoppingCart, Package, ClipboardList, Boxes, Users, List } from 'lucide-react';
+import OrderTab from '@/components/order/OrderTab';
+import OrderListTab from '@/components/order/OrderListTab';
 import MasterItemTab from '@/components/MasterItemTab';
 import ShoppingListTab from '@/components/ShoppingListTab';
 import StockTab from '@/components/StockTab';
@@ -87,7 +88,6 @@ export default function Dashboard() {
     setTimeout(() => setMessage({ type: '', text: '' }), 3000);
   };
 
-  // Make refreshStocks available globally for OrderTab
   useEffect(() => {
     window.refreshStocks = fetchStocks;
     return () => {
@@ -95,18 +95,16 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Check permissions
   const canAccessTab = (tab) => {
     if (!currentUser) return false;
     if (currentUser.role === 'superadmin') return true;
-    if (currentUser.role === 'admin') return ['order', 'master', 'shopping', 'stock'].includes(tab);
-    if (currentUser.role === 'worker') return tab === 'order';
+    if (currentUser.role === 'admin') return ['order', 'orderlist', 'master', 'shopping', 'stock'].includes(tab);
+    if (currentUser.role === 'worker') return ['order', 'orderlist'].includes(tab);
     return false;
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Message Toast */}
       {message.text && (
         <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
           message.type === 'success' ? 'bg-black text-white' : 'bg-red-600 text-white'
@@ -115,7 +113,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg overflow-x-auto">
           {canAccessTab('order') && (
@@ -127,6 +124,17 @@ export default function Dashboard() {
             >
               <ShoppingCart className="w-5 h-5" />
               <span>Order</span>
+            </button>
+          )}
+          {canAccessTab('orderlist') && (
+            <button
+              onClick={() => setActiveTab('orderlist')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                activeTab === 'orderlist' ? 'bg-black text-white' : 'text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <List className="w-5 h-5" />
+              <span>Order List</span>
             </button>
           )}
           {canAccessTab('master') && (
@@ -176,7 +184,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'order' && (
           <OrderTab
@@ -186,6 +193,10 @@ export default function Dashboard() {
             currentUser={currentUser}
             onMessage={showMessage}
           />
+        )}
+        
+        {activeTab === 'orderlist' && (
+          <OrderListTab onMessage={showMessage} />
         )}
         
         {activeTab === 'master' && (

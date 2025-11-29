@@ -11,7 +11,7 @@ export default function OrderCard({ item, quantity, onIncrease, onDecrease, onRe
         <div className="flex-1">
           <h3 className="font-bold text-lg">{item.item_name}</h3>
           <p className="text-gray-600 text-sm">
-            Rp {parseInt(item.hpj || 0).toLocaleString()} / pcs
+            Rp {parseInt(item.hpj || 0).toLocaleString('id-ID')} / pcs
           </p>
         </div>
         <button
@@ -43,7 +43,7 @@ export default function OrderCard({ item, quantity, onIncrease, onDecrease, onRe
         <div className="text-right">
           <p className="text-xs text-gray-500">Total</p>
           <p className="font-bold text-lg">
-            Rp {total.toLocaleString()}
+            Rp {total.toLocaleString('id-ID')}
           </p>
         </div>
       </div>

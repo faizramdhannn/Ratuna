@@ -23,19 +23,19 @@ export async function POST(request) {
       quantity_item, 
       total_amount, 
       cashier_name,
+      customer_name,
       payment_method,
       cash_paid,
       change
     } = body;
 
-    if (!item_name || !quantity_item || !total_amount || !cashier_name || !payment_method) {
+    if (!item_name || !quantity_item || !total_amount || !cashier_name || !customer_name || !payment_method) {
       return NextResponse.json(
         { error: 'Semua field harus diisi' },
         { status: 400 }
       );
     }
 
-    // Use provided order_id or generate new one
     const finalOrderId = order_id || `RTN-${Date.now().toString(36).toUpperCase()}`;
     const created_at = new Date().toISOString();
 
@@ -55,6 +55,7 @@ export async function POST(request) {
       quantity_item,
       total_amount,
       cashier_name,
+      customer_name,
       payment_method,
       cash_paid || total_amount,
       change || 0
@@ -72,6 +73,7 @@ export async function POST(request) {
         quantity_item,
         total_amount,
         cashier_name,
+        customer_name,
         payment_method,
         cash_paid: cash_paid || total_amount,
         change: change || 0
