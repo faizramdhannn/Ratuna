@@ -1,8 +1,7 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Calendar, TrendingUp, ShoppingCart, CreditCard, DollarSign, Package } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 
 export default function AnalyticsDashboard({ onMessage }) {
   const [loading, setLoading] = useState(false);
@@ -20,13 +19,16 @@ export default function AnalyticsDashboard({ onMessage }) {
     qrisOrders: 0,
     cashOrders: 0,
     topItems: [],
-    totalHPP: 0,
-    totalOperasional: 0,
-    totalWorker: 0,
-    totalMarketing: 0,
-    totalNetSales: 0,
     totalCosts: 0,
-    totalProfit: 0
+    totalProfit: 0,
+    totalShoppingCosts: 0,
+    shoppingByCategory: {
+      Karyawan: 0,
+      Bahan: 0,
+      Operasional: 0,
+      Marketing: 0,
+      Zakat: 0
+    }
   });
 
   useEffect(() => {
@@ -118,37 +120,48 @@ export default function AnalyticsDashboard({ onMessage }) {
     const topItems = Object.values(itemSales)
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 5);
-
-    let totalHPP = 0;
-    let totalOperasional = 0;
-    let totalWorker = 0;
-    let totalMarketing = 0;
-    let totalNetSales = 0;
-
+    
+    // Fetch shopping list data untuk total pengeluaran
+    let totalShoppingCosts = 0;
+    let shoppingByCategory = {
+      Karyawan: 0,
+      Bahan: 0,
+      Operasional: 0,
+      Marketing: 0,
+      Zakat: 0
+    };
+    
     try {
-      const res = await fetch('/api/master-items');
-      const data = await res.json();
+      const shoppingRes = await fetch('/api/shopping-list');
+      const shoppingData = await shoppingRes.json();
       
-      if (data.success) {
-        const masterItems = data.data;
+      if (shoppingData.success) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
         
-        ordersData.forEach(order => {
-          const item = masterItems.find(m => m.item_name === order.item_name);
-          if (item) {
-            const qty = parseInt(order.quantity_item || 0);
-            totalHPP += (parseFloat(item.hpp) || 0) * qty;
-            totalOperasional += (parseFloat(item.operasional) || 0) * qty;
-            totalWorker += (parseFloat(item.worker) || 0) * qty;
-            totalMarketing += (parseFloat(item.marketing) || 0) * qty;
-            totalNetSales += (parseFloat(item.net_sales) || 0) * qty;
-          }
-        });
+        // Filter shopping list berdasarkan tanggal yang sama dengan orders
+        shoppingData.data
+          .filter(item => {
+            const itemDate = new Date(item.shopping_date);
+            return itemDate >= start && itemDate <= end;
+          })
+          .forEach(item => {
+            const price = parseFloat(item.price || 0);
+            totalShoppingCosts += price;
+            
+            // Group by category
+            if (item.category && shoppingByCategory.hasOwnProperty(item.category)) {
+              shoppingByCategory[item.category] += price;
+            }
+          });
       }
     } catch (error) {
-      console.error('Error fetching master items:', error);
+      console.error('Error fetching shopping list:', error);
     }
-
-    const totalCosts = totalHPP + totalOperasional + totalWorker + totalMarketing;
+    
+    // Total costs = total shopping list (sudah include semua biaya)
+    const totalCosts = totalShoppingCosts;
     const totalProfit = totalRevenue - totalCosts;
 
     setAnalytics({
@@ -161,13 +174,10 @@ export default function AnalyticsDashboard({ onMessage }) {
       qrisOrders: qrisOrders.length,
       cashOrders: cashOrders.length,
       topItems,
-      totalHPP,
-      totalOperasional,
-      totalWorker,
-      totalMarketing,
-      totalNetSales,
       totalCosts,
-      totalProfit
+      totalProfit,
+      totalShoppingCosts,
+      shoppingByCategory
     });
   };
 
@@ -198,13 +208,13 @@ export default function AnalyticsDashboard({ onMessage }) {
     </div>
   );
 
-  // Prepare data for bar chart
+  // Prepare data for bar chart - breakdown by shopping category
   const costBreakdownData = [
-    { name: 'HPP', value: analytics.totalHPP, color: '#dc2626', label: 'Harga Pokok Penjualan' },
-    { name: 'Operasional', value: analytics.totalOperasional, color: '#ea580c', label: 'Biaya Operasional' },
-    { name: 'Worker', value: analytics.totalWorker, color: '#2563eb', label: 'Biaya Tenaga Kerja' },
-    { name: 'Marketing', value: analytics.totalMarketing, color: '#ca8a04', label: 'Biaya Marketing' },
-    { name: 'Net Sales', value: analytics.totalNetSales, color: '#059669', label: 'Penjualan Bersih' }
+    { name: 'Karyawan', value: analytics.shoppingByCategory.Karyawan, color: '#2563eb', label: 'Biaya Karyawan' },
+    { name: 'Bahan', value: analytics.shoppingByCategory.Bahan, color: '#059669', label: 'Biaya Bahan Baku' },
+    { name: 'Operasional', value: analytics.shoppingByCategory.Operasional, color: '#ea580c', label: 'Biaya Operasional' },
+    { name: 'Marketing', value: analytics.shoppingByCategory.Marketing, color: '#ca8a04', label: 'Biaya Marketing' },
+    { name: 'Zakat', value: analytics.shoppingByCategory.Zakat, color: '#7c3aed', label: 'Zakat' }
   ].filter(item => item.value > 0);
 
   const totalCostSum = costBreakdownData.reduce((sum, item) => sum + item.value, 0);
@@ -227,7 +237,7 @@ export default function AnalyticsDashboard({ onMessage }) {
   return (
     <div className="space-y-4">
       {/* Filter Section */}
-      <div className="bg-white border-2 border-grey-200 rounded-lg p-6">
+      <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
         <h2 className="text-2xl text-center font-bold mb-4">Analytics Dashboard</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -274,12 +284,12 @@ export default function AnalyticsDashboard({ onMessage }) {
         </button>
       </div>
 
-      {/* BARIS 1: Diagram Bar Chart Breakdown Biaya */}
-      <div className="bg-white border-2 border-grey-200 rounded-lg p-6">
+      {/* BARIS 1: Diagram Bar Chart Breakdown Biaya dari Shopping List */}
+      <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold">Pembagian Biaya Operasional</h3>
+          <h3 className="text-xl font-bold">Breakdown Pengeluaran</h3>
           <div className="text-right">
-            <p className="text-xs text-gray-600">Total Penghasilan</p>
+            <p className="text-xs text-gray-600">Total Pengeluaran</p>
             <p className="text-xl font-bold">Rp {totalCostSum.toLocaleString()}</p>
           </div>
         </div>
@@ -370,7 +380,7 @@ export default function AnalyticsDashboard({ onMessage }) {
         />
       </div>
 
-      {/* BARIS 4: QRIS dan Cash */}
+      {/* BARIS 3: QRIS dan Cash */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-black transition-all">
           <div className="flex items-center space-x-3 mb-3">
@@ -414,7 +424,7 @@ export default function AnalyticsDashboard({ onMessage }) {
       </div>
 
       {/* Summary Section */}
-      <div className="bg-white border-2 border-grey-200 rounded-lg p-6">
+      <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
         <h3 className="text-xl font-bold mb-4">Ringkasan Keuangan</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center">
@@ -423,14 +433,12 @@ export default function AnalyticsDashboard({ onMessage }) {
               Rp {analytics.totalRevenue.toLocaleString()}
             </p>
           </div>
-
           <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
             <p className="text-xs text-red-700 mb-2 font-medium">Total Pengeluaran</p>
             <p className="text-2xl font-bold text-red-900">
               Rp {analytics.totalCosts.toLocaleString()}
             </p>
           </div>
-
           <div className={`${analytics.totalProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'} border-2 rounded-lg p-4 text-center`}>
             <p className={`text-xs ${analytics.totalProfit >= 0 ? 'text-blue-700' : 'text-red-700'} mb-2 font-medium`}>
               Keuntungan Bersih
@@ -448,7 +456,7 @@ export default function AnalyticsDashboard({ onMessage }) {
       </div>
 
       {/* Top Items Section */}
-      <div className="bg-white border-2 border-grey-200 rounded-lg p-6">
+      <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
         <div className="flex items-center space-x-3 mb-6">
           <Package className="w-6 h-6" />
           <h3 className="text-xl font-bold">Top 5 Item Terlaris</h3>

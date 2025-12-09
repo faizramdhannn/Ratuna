@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Calendar, Package, Filter } from 'lucide-react';
 
-const SHOPPING_CATEGORIES = ['Karyawan', 'Bahan', 'Operasional'];
+const SHOPPING_CATEGORIES = ['Karyawan', 'Bahan', 'Operasional', 'Marketing', 'Zakat'];
 
 export default function ShoppingListTab({ onMessage }) {
   const [loading, setLoading] = useState(false);
