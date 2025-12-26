@@ -33,7 +33,8 @@ export default function AnalyticsDashboard({ onMessage }) {
     totalHPP: 0,
     totalOperasional: 0,
     totalWorker: 0,
-    totalMarketing: 0
+    totalMarketing: 0,
+    totalNetSales: 0
   });
 
   useEffect(() => {
@@ -131,6 +132,7 @@ export default function AnalyticsDashboard({ onMessage }) {
     let totalOperasional = 0;
     let totalWorker = 0;
     let totalMarketing = 0;
+    let totalNetSales = 0;
 
     try {
       const masterRes = await fetch('/api/master-items');
@@ -148,6 +150,7 @@ export default function AnalyticsDashboard({ onMessage }) {
             totalOperasional += (parseFloat(masterItem.operasional || 0) * quantity);
             totalWorker += (parseFloat(masterItem.worker || 0) * quantity);
             totalMarketing += (parseFloat(masterItem.marketing || 0) * quantity);
+            totalNetSales += (parseFloat(masterItem.net_sales || 0) * quantity);
           }
         });
       }
@@ -215,7 +218,8 @@ export default function AnalyticsDashboard({ onMessage }) {
       totalHPP,
       totalOperasional,
       totalWorker,
-      totalMarketing
+      totalMarketing,
+      totalNetSales
     });
   };
 
@@ -389,7 +393,7 @@ export default function AnalyticsDashboard({ onMessage }) {
       {/* BARIS BARU: Breakdown Biaya dari Master Data */}
       <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
         <h3 className="text-xl font-bold mb-6">Breakdown Biaya dari Penjualan (Master Data)</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-lg p-5">
             <p className="text-sm text-red-700 font-medium mb-2">Total HPP</p>
             <p className="text-2xl font-bold text-red-900">
@@ -429,6 +433,16 @@ export default function AnalyticsDashboard({ onMessage }) {
               Biaya Marketing
             </p>
           </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-lg p-5">
+            <p className="text-sm text-green-700 font-medium mb-2">Total Net Sales</p>
+            <p className="text-2xl font-bold text-green-900">
+              Rp {analytics.totalNetSales.toLocaleString()}
+            </p>
+            <p className="text-xs text-green-600 mt-1">
+              Penjualan Bersih
+            </p>
+          </div>
         </div>
         
         {/* Total dari Master Data */}
@@ -436,7 +450,7 @@ export default function AnalyticsDashboard({ onMessage }) {
           <div className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
             <span className="text-lg font-bold text-gray-800">Total Biaya dari Penjualan:</span>
             <span className="text-2xl font-bold text-gray-900">
-              Rp {(analytics.totalHPP + analytics.totalOperasional + analytics.totalWorker + analytics.totalMarketing).toLocaleString()}
+              Rp {(analytics.totalHPP + analytics.totalOperasional + analytics.totalWorker + analytics.totalMarketing + analytics.totalNetSales).toLocaleString()}
             </span>
           </div>
         </div>
