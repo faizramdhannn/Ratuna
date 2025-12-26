@@ -28,7 +28,12 @@ export default function AnalyticsDashboard({ onMessage }) {
       Operasional: 0,
       Marketing: 0,
       Zakat: 0
-    }
+    },
+    // Breakdown biaya dari master data
+    totalHPP: 0,
+    totalOperasional: 0,
+    totalWorker: 0,
+    totalMarketing: 0
   });
 
   useEffect(() => {
@@ -120,6 +125,35 @@ export default function AnalyticsDashboard({ onMessage }) {
     const topItems = Object.values(itemSales)
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 5);
+
+    // Fetch master items untuk mendapatkan biaya per item
+    let totalHPP = 0;
+    let totalOperasional = 0;
+    let totalWorker = 0;
+    let totalMarketing = 0;
+
+    try {
+      const masterRes = await fetch('/api/master-items');
+      const masterData = await masterRes.json();
+      
+      if (masterData.success) {
+        const masterItems = masterData.data;
+        
+        // Hitung biaya berdasarkan items yang terjual
+        ordersData.forEach(order => {
+          const masterItem = masterItems.find(m => m.item_name === order.item_name);
+          if (masterItem) {
+            const quantity = parseInt(order.quantity_item || 0);
+            totalHPP += (parseFloat(masterItem.hpp || 0) * quantity);
+            totalOperasional += (parseFloat(masterItem.operasional || 0) * quantity);
+            totalWorker += (parseFloat(masterItem.worker || 0) * quantity);
+            totalMarketing += (parseFloat(masterItem.marketing || 0) * quantity);
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching master items:', error);
+    }
     
     // Fetch shopping list data untuk total pengeluaran
     let totalShoppingCosts = 0;
@@ -177,7 +211,11 @@ export default function AnalyticsDashboard({ onMessage }) {
       totalCosts,
       totalProfit,
       totalShoppingCosts,
-      shoppingByCategory
+      shoppingByCategory,
+      totalHPP,
+      totalOperasional,
+      totalWorker,
+      totalMarketing
     });
   };
 
@@ -346,6 +384,62 @@ export default function AnalyticsDashboard({ onMessage }) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* BARIS BARU: Breakdown Biaya dari Master Data */}
+      <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
+        <h3 className="text-xl font-bold mb-6">Breakdown Biaya dari Penjualan (Master Data)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-lg p-5">
+            <p className="text-sm text-red-700 font-medium mb-2">Total HPP</p>
+            <p className="text-2xl font-bold text-red-900">
+              Rp {analytics.totalHPP.toLocaleString()}
+            </p>
+            <p className="text-xs text-red-600 mt-1">
+              Harga Pokok Penjualan
+            </p>
+          </div>
+          
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-lg p-5">
+            <p className="text-sm text-orange-700 font-medium mb-2">Total Operasional</p>
+            <p className="text-2xl font-bold text-orange-900">
+              Rp {analytics.totalOperasional.toLocaleString()}
+            </p>
+            <p className="text-xs text-orange-600 mt-1">
+              Biaya Operasional
+            </p>
+          </div>
+          
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg p-5">
+            <p className="text-sm text-blue-700 font-medium mb-2">Total Worker</p>
+            <p className="text-2xl font-bold text-blue-900">
+              Rp {analytics.totalWorker.toLocaleString()}
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              Biaya Karyawan
+            </p>
+          </div>
+          
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-200 rounded-lg p-5">
+            <p className="text-sm text-yellow-700 font-medium mb-2">Total Marketing</p>
+            <p className="text-2xl font-bold text-yellow-900">
+              Rp {analytics.totalMarketing.toLocaleString()}
+            </p>
+            <p className="text-xs text-yellow-600 mt-1">
+              Biaya Marketing
+            </p>
+          </div>
+        </div>
+        
+        {/* Total dari Master Data */}
+        <div className="mt-4 pt-4 border-t-2 border-gray-200">
+          <div className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
+            <span className="text-lg font-bold text-gray-800">Total Biaya dari Penjualan:</span>
+            <span className="text-2xl font-bold text-gray-900">
+              Rp {(analytics.totalHPP + analytics.totalOperasional + analytics.totalWorker + analytics.totalMarketing).toLocaleString()}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* BARIS 2: Total Penghasilan, Total Order, Rata-rata Order, Periode */}
