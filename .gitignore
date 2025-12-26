@@ -43,3 +43,5 @@ lerna-debug.log*
 *.swp
 *.swo
 *~package-lock.json
+package-lock.json
+node_modules
