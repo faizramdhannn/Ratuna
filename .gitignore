@@ -1,47 +1,39 @@
-# Dependencies
-node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
 /.pnp
 .pnp.js
 
-# Testing
+# testing
 /coverage
 
-# Next.js
+# next.js
 /.next/
 /out/
 
-# Production
+# production
 /build
 
-# Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# OS
+# misc
 .DS_Store
 *.pem
 
-# Debug
-*.log
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Local
+# local env files
+.env*.local
+.env
+
+# vercel
 .vercel
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~package-lock.json
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# lock files (untuk avoid platform issues)
 package-lock.json
-node_modules
