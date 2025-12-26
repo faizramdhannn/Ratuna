@@ -42,4 +42,4 @@ lerna-debug.log*
 .idea/
 *.swp
 *.swo
-*~
+*~package-lock.json
